@@ -1,32 +1,70 @@
-import React, { useState } from "react";
+"use client"
+import React, { useState, useEffect } from "react";
 
-const List = ({ data, setList, myList }: any) => {
+const List = ({ data, parentDatas, parentToChild }: any) => {
   const [open, setOpen] = useState(false);
-  const [idx, setIdx] = useState<string[]>([]);
+  const [searchValue, setSearchValue] = useState("");
+  const [idx, setIdx] = useState<any>([]);
   const checkedList = (e: any) => {
-    const copyIdx = idx;
+    const copyIdx = [...idx];
     if (e.target.checked && copyIdx?.indexOf(e.target.value) === -1) {
-      setIdx([...copyIdx, e.target.value]);
+      setIdx([...copyIdx, {value: e.target.value, title: e.target.name, checked: e.target.checked}]);
     } else {
       setIdx(
-        copyIdx?.filter((element) => {
-          return element !== e.target.value;
+        copyIdx?.filter((element : any) => {
+          return element.value !== e.target.value;
         })
       );
     }
   };
 
+  const search = () => {
+    const a = data?.filter((el: any) => {
+      return el.id.toString() === searchValue
+    })
+    console.log(a);
+
+  }
+
   const addList = () => {
-    setIdx(setList(idx));
+    parentDatas(idx);
     setOpen(!open);
   };
 
-  console.log(idx);
+  const showList = () => {
+    setIdx(parentToChild);
+    setOpen(!open);
+  }
+
+  useEffect(() => {
+    const searchInput : any = document.getElementById('searchInput');
+    const table : any = document.getElementById('dataTable');
+
+    const handleSearch = () => {
+      const query = searchInput.value.toLowerCase();
+      const rows = table.querySelectorAll('tbody tr');
+
+      rows.forEach((row : any) => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(query)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    };
+
+    searchInput.addEventListener('input', handleSearch);
+
+    return () => {
+      searchInput.removeEventListener('input', handleSearch);
+    };
+  }, []);
 
   return (
     <div className="">
       <div>
-        <button onClick={() => setOpen(!open)} className="rounded-md border-slate-600 border p-3 m-3">
+        <button onClick={showList} className="rounded-md border-slate-600 border p-3 m-3">
           Show List
         </button>
       </div>
@@ -42,8 +80,12 @@ const List = ({ data, setList, myList }: any) => {
           X
         </div>
         <div className="p-10 bg-red-200 rounded-lg relative">
+          <div className="flex">
+          <input id="searchInput" type="text" value={searchValue} onChange={(e : any) => setSearchValue(e.target.value)} />
+          <button type="button" onClick={search}>Search</button>
+          </div>
           <div className={`h-[600px] overflow-y-scroll w-[800px] bg-gray-400 z-100`}>
-            <table>
+            <table id="dataTable">
               <thead>
                 <tr>
                   <td>Checked</td>
@@ -62,7 +104,8 @@ const List = ({ data, setList, myList }: any) => {
                           type="checkbox"
                           value={element.id}
                           onChange={checkedList}
-                          checked={myList.includes(element.id.toString())}
+                          name={element.title}
+                          checked={idx.some((el : any) => element.title === el.title)}
                         />
                       </td>
                       <td>{element.userId}</td>
@@ -78,7 +121,7 @@ const List = ({ data, setList, myList }: any) => {
           <div className="flex justify-end">
             <button className="p-3 border border-slate-600 rounded-md m-2" onClick={addList}>
               Add list
-            </button>
+            </button> 
           </div>
         </div>
       </div>

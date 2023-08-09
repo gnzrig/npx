@@ -6,8 +6,7 @@ import SearchField from "./SearchField";
 
 const TestJsonData = () => {
   const [data, setData] = useState([]);
-  const [listData, setDataList] = useState([]);
-  const [myList, setMyList] = useState([]);
+  const [listData, setListData] = useState([]);
   useEffect(() => {
     async function fetchData() {
       try {
@@ -21,9 +20,9 @@ const TestJsonData = () => {
     fetchData();
   }, []);
 
-  const setList = (arr: any) => {
-    setDataList(arr);
-  };
+  const parentDatas = (datas : any) =>{
+    setListData(datas);
+  }
 
   const getFilteredData = (fieldObj: any) => {
     async function fetchData() {
@@ -44,29 +43,28 @@ const TestJsonData = () => {
     fetchData();
   };
 
-  const setMylists = (list: any) => {
-    setMyList(list);
-  };
-
   const removeFromList = (e: any) => {
     const copyListData = listData;
-    const filtered = copyListData.filter((el) => {
-      return el !== e.target.innerText;
+    const filtered = copyListData.filter((el : any) => {
+      return el.title !== e.target.innerText;
     });
-    setDataList(filtered);
-    setMylists(filtered);
+    setListData(filtered);
   };
+
+  const parentToChild = () => {
+    return listData
+  }
 
   return (
     <div className="flex flex-col">
       <SearchField searching={getFilteredData} />
-      <List data={data} setList={setList} myList={myList} />
+      <List data={data} parentDatas={parentDatas} parentToChild={parentToChild}/>
       <div>
         <ul>
-          {listData?.map((el, index) => {
+          {listData?.map((el : any, index) => {
             return (
               <li className="bg-blue-200 p-3 m-1 hover:cursor-pointer" onClick={removeFromList} key={index}>
-                {el}
+                {el.title}
               </li>
             );
           })}
