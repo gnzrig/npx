@@ -22,8 +22,6 @@ const List = ({ data, parentDatas, parentToChild }: any) => {
     const a = data?.filter((el: any) => {
       return el.id.toString() === searchValue
     })
-    console.log(a);
-
   }
 
   const addList = () => {
